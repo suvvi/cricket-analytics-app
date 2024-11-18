@@ -1,8 +1,8 @@
 import { useReactMediaRecorder } from "react-media-recorder";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const VideoRecorder = () => {
-  const { status, startRecording, stopRecording, mediaBlobUrl } =
+  const { status, startRecording, stopRecording, mediaBlobUrl, previewStream } =
     useReactMediaRecorder({ video: true });
 
   const [metadata, setMetadata] = useState({
@@ -10,7 +10,10 @@ const VideoRecorder = () => {
     wicketStatus: "",
     shotType: "",
     otherData: "",
+    videoUrl: "",
   });
+
+  const [videoBlob, setVideoBlob] = useState(null);
 
   const handleInputChange = (event) => {
     setMetadata((prevMetadata) => ({
@@ -20,31 +23,45 @@ const VideoRecorder = () => {
   };
 
   const handleSave = () => {
-    if (mediaBlobUrl) {
-      const blob = new Blob([JSON.stringify(metadata)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "metadata.json";
-      a.click();
-
-      const videoBlob = new Blob([mediaBlobUrl], { type: "video/webm" });
+    if (videoBlob) {
       const videoUrl = URL.createObjectURL(videoBlob);
       const videoA = document.createElement("a");
       videoA.href = videoUrl;
       videoA.download = "video.webm";
       videoA.click();
-
+  
+      const newMetadata = {
+       ...metadata,
+        videoUrl: videoUrl,
+      };
+  
+      const metadataBlob = new Blob([JSON.stringify(newMetadata)], { type: "application/json" });
+      const metadataUrl = URL.createObjectURL(metadataBlob);
+      const metadataA = document.createElement("a");
+      metadataA.href = metadataUrl;
+      metadataA.download = "metadata.json";
+      metadataA.click();
+  
       // Reset form and video recorder
       setMetadata({
         runsScored: "",
         wicketStatus: "",
         shotType: "",
         otherData: "",
+        videoUrl: "",
       });
-      startRecording();
+      //startRecording();
     }
   };
+  
+
+  useEffect(() => {
+    if (mediaBlobUrl) {
+      fetch(mediaBlobUrl)
+       .then((response) => response.blob())
+       .then((blob) => setVideoBlob(blob));
+    }
+  }, [mediaBlobUrl]);
 
   return (
     <div>
@@ -77,5 +94,6 @@ const VideoRecorder = () => {
     </div>
   );
 };
+
 
 export default VideoRecorder;
