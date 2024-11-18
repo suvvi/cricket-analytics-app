@@ -12,11 +12,11 @@ const App = () => {
 
   return (
     <div>
-      <VideoFeed />
-      <VideoRecorder onRecordingStop={(blob) => setVideoBlob(blob)} />
+      <VideoRecorder/> 
+      {/* onRecordingStop={(blob) => setVideoBlob(blob)} />
       <BallDataForm onSubmit={(metadata) => setMetadata(metadata)} />
       <SaveButton videoBlob={videoBlob} metadata={metadata} />
-      <UploadButton />
+      <UploadButton /> */}
     </div>
   );
 };
